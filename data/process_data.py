@@ -4,12 +4,14 @@ from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
+    '''Loads messages files and their mapped categories file using the file paths provided, and then merges them'''
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = pd.merge(messages, categories, on="id")
     return df
 
 def clean_data(df):
+    '''Takes a data frame, cleans it by spliting the category column into wide columns and hot encoding values to become ready for MultiClassifier Model'''
     categories = df['categories'].str.split(';', expand=True) # creating a dataframe of the 36 individual category columns
     row = categories.iloc[0]
     category_colnames = row.apply(lambda x: x[:-2])
@@ -25,6 +27,7 @@ def clean_data(df):
     return df
 
 def save_data(df, database_filename):
+    '''Takes a dataframe and database filename to create an sqllite database for persistent storage'''
     engine = create_engine('sqlite:///'+database_filename)
     df.to_sql('Message', engine, index=False)  
 

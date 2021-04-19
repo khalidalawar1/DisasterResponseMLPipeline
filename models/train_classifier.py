@@ -22,7 +22,8 @@ import pickle
 
 
 def load_data(database_filepath):
-    # load data from database
+    '''Takes a database filepath and loads the data as X,Y, and columns for model training'''
+    # loading data from database
     engine = create_engine('sqlite:///'+database_filepath)
     df = pd.read_sql_table('Message',engine)
     X = df['message']
@@ -30,6 +31,7 @@ def load_data(database_filepath):
     return X,y, y.columns
 
 def tokenize(text):
+    '''NLP Tokenizer that takes in text and outputs a tokenized version ready for CountVectorizer and other transformations prior to model training'''
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -42,13 +44,15 @@ def tokenize(text):
 
 
 def build_model():
+    '''Builds a pipeline with transformations and MultiOutputClassifier, returns a Grid Search CV object that finds best parameters'''
+
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
     ])
     
-    parameters = {
+    parameters = { #only 1 parameters with 2 variations are used for performance purposes, this can be used to add as many as needed
         'vect__max_df': (0.5,1.0)
     }
     
@@ -58,17 +62,19 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    Y_pred = model.predict(X_test)
-
+    '''Takes in the model and test dataset to make the predictions and evaluate them relative to the truth values'''
+    
+    Y_pred = model.predict(X_test) #using model to predict based on test data set
     
     i=0
-    for cat in category_names:
+    for cat in category_names: #iterating through each category name where we would need a classification report
         print(cat)
-        print(classification_report(Y_test.values[:,i], Y_pred[:,i]))
+        print(classification_report(Y_test.values[:,i], Y_pred[:,i])) #displaying the classification report for the iterated column
         i = i+1
 
 
 def save_model(model, model_filepath):
+    '''Uses Pickle framework to save the trained model for loading and use later'''
     pickle.dump(model, open(model_filepath, 'wb'))
 
 
