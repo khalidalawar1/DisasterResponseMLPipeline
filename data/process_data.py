@@ -21,6 +21,8 @@ def clean_data(df):
         categories[column] = categories[column].apply(lambda x: x[-1])    # setting each value to be the last character of the string
     
         categories[column] = pd.to_numeric(categories[column]) # convert column from string to numeric
+        categories[column] = [1 if x > 0 else 0 for x in categories[column]] #making sure that value is binary, >0 is true, hence setting all possible true values to 1
+
     df.drop(['categories'], axis=1, inplace=True) #dropping the column where we derived new col names
     df = pd.concat([df,categories], axis=1) # concatenating the original dataframe with the new `categories` dataframe
     df.drop_duplicates(inplace=True)
@@ -29,7 +31,7 @@ def clean_data(df):
 def save_data(df, database_filename):
     '''Takes a dataframe and database filename to create an sqllite database for persistent storage'''
     engine = create_engine('sqlite:///'+database_filename)
-    df.to_sql('Message', engine, index=False)  
+    df.to_sql('Message', engine, index=False, if_exists='replace')  
 
 
 def main():
