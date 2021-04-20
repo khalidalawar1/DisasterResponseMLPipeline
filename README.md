@@ -1,5 +1,7 @@
 # Disaster Response Pipeline Project
 
+For reproducibility and training other data sets, please make sure to checkout the format of the supplied data sets in the `data` folder.
+
 ### Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
 
